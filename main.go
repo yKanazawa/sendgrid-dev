@@ -20,5 +20,5 @@ func main() {
 	}
 
 	router := route.Init()
-	router.Logger.Fatal(router.Start(":3030"))
+	router.Logger.Fatal(router.Start(":"+strconv.Itoa(port)))
 }
