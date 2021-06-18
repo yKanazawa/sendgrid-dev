@@ -25,7 +25,7 @@ func PostSend() echo.HandlerFunc {
 	return func(c echo.Context) (err error) {
 
 		var postRequest model.PostRequest
-		if err := postRequest.SetPostRequest(c); err != nil {
+		if err := postRequest.SetPostRequest(c.Request().Body); err != nil {
 			return c.JSON(http.StatusBadRequest, getErrorResponse("Bad Request", nil, nil))
 		}
 

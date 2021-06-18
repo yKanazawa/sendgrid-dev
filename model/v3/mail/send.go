@@ -2,8 +2,7 @@ package send
 
 import (
 	"encoding/json"
-
-	"github.com/labstack/echo"
+	"io"
 )
 
 type PostRequest struct {
@@ -43,6 +42,6 @@ type PostRequest struct {
 	} `json:"attachments"`
 }
 
-func (postRequest *PostRequest) SetPostRequest(c echo.Context) error {
-	return json.NewDecoder(c.Request().Body).Decode(&postRequest);
+func (postRequest *PostRequest) SetPostRequest(requestBody io.ReadCloser) error {
+	return json.NewDecoder(requestBody).Decode(&postRequest);
 }
