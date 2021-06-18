@@ -1,8 +1,6 @@
 package send
 
 import (
-	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo"
@@ -27,13 +25,10 @@ func PostSend() echo.HandlerFunc {
 	return func(c echo.Context) (err error) {
 
 		var postRequest model.PostRequest
-
-		if err := json.NewDecoder(c.Request().Body).Decode(&postRequest); err != nil {
+		if err := postRequest.SetPostRequest(c); err != nil {
 			return c.JSON(http.StatusBadRequest, getErrorResponse("Bad Request", nil, nil))
 		}
 
-		// Debug
-		fmt.Printf("postRequest %#v\n", postRequest)
 		return c.String(http.StatusAccepted, "")
 	}
 }

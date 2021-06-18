@@ -1,5 +1,11 @@
 package send
 
+import (
+	"encoding/json"
+
+	"github.com/labstack/echo"
+)
+
 type PostRequest struct {
 	Personalizations []struct {
 		To []struct {
@@ -35,4 +41,8 @@ type PostRequest struct {
 		Disposition string `json:"disposition"`
 		ContentId   string `json:"content_id"`
 	} `json:"attachments"`
+}
+
+func (postRequest *PostRequest) SetPostRequest(c echo.Context) error {
+	return json.NewDecoder(c.Request().Body).Decode(&postRequest);
 }
