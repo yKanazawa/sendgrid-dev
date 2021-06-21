@@ -28,7 +28,7 @@ type PostRequest struct {
 		Email string `json:"email"`
 		Name  string `json:"name"`
 	} `json:"reply_to"`
-	Subject string `json:"subject"`
+	Subject string `json:"subject" validate:"required"`
 	Content []struct {
 		Type  string `json:"type"`
 		Value string `json:"value"`
