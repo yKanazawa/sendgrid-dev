@@ -23,6 +23,11 @@ func GetSend() echo.HandlerFunc {
 
 func PostSend() echo.HandlerFunc {
 	return func(c echo.Context) (err error) {
+		contentType := c.Request().Header["Content-Type"]
+		if len(contentType) == 0 || contentType[0] != "application/json" {
+			return c.JSON(http.StatusUnsupportedMediaType, model.GetErrorResponse("Content-Type should be application/json", nil, nil))
+		}
+
 		var postRequest model.PostRequest;
 		if err := postRequest.SetPostRequest(c.Request().Body); err != nil {
 			return c.JSON(http.StatusBadRequest, model.GetErrorResponse("Bad Request", nil, nil))

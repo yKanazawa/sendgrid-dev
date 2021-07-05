@@ -9,7 +9,6 @@ import (
 	"github.com/yKanazawa/sendgrid-dev/route"
 )
 
-
 func TestSend(t *testing.T) {
 	os.Setenv("SENDGRID_DEV_TEST", "1")
 	os.Setenv("SENDGRID_DEV_APIKEY", "SG.xxxxx")
@@ -22,13 +21,32 @@ func TestSend(t *testing.T) {
 		Status(http.StatusMethodNotAllowed).
 		End()
 
-	// NG (Missing PostData)
+	// NG (Missing Content-Type)
 	apitest.New().
 		Handler(route.Init()).
 		Post("/v3/mail/send").
 		Expect(t).
+		Body(`{"errors":[{"message":"Content-Type should be application/json","field":null,"help":null}]}`).
+		Status(http.StatusUnsupportedMediaType).
+		End()
+
+	// NG (Content-Type is not application/json)
+	apitest.New().
+		Handler(route.Init()).
+		Post("/v3/mail/send").
+		Headers(map[string]string{"Content-Type": "text/plain"}).
+		Expect(t).
+		Body(`{"errors":[{"message":"Content-Type should be application/json","field":null,"help":null}]}`).
+		Status(http.StatusUnsupportedMediaType).
+		End()
+
+	// NG (Missing PostData)
+	apitest.New().
+		Handler(route.Init()).
+		Post("/v3/mail/send").
+		Headers(map[string]string{"Content-Type": "application/json"}).
+		Expect(t).
 		Body(`{"errors":[{"message":"Bad Request","field":null,"help":null}]}`).
 		Status(http.StatusBadRequest).
 		End()
-
 }
