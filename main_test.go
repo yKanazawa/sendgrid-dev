@@ -69,6 +69,27 @@ func TestSend(t *testing.T) {
 		Status(http.StatusBadRequest).
 		End()
 
+	// NG (Missing from.Email)
+	apitest.New().
+		Handler(route.Init()).
+		Post("/v3/mail/send").
+		JSON(`{
+			"personalizations": [{
+				"to": [{
+					"email": "to@example.com"
+				}]
+			}], 
+			"subject": "Subject", 
+			"content": [{
+				"type": "text/plain", 
+				"value": "Content"
+			}]
+		}`).
+		Expect(t).
+		Body(`{"errors":[{"message":"The from object must be provided for every email send. It is an object that requires the email parameter, but may also contain a name parameter.  e.g. {\"email\" : \"example@example.com\"}  or {\"email\" : \"example@example.com\", \"name\" : \"Example Recipient\"}.","field":"from.email","help":"http://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html#message.from"}]}`).
+		Status(http.StatusBadRequest).
+		End()
+
 	// NG (Missing subject)
 	apitest.New().
 		Handler(route.Init()).

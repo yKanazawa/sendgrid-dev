@@ -25,7 +25,7 @@ type PostRequest struct {
 		} `json:"bcc"`
 	} `json:"personalizations" validate:"required"`
 	From struct {
-		Email string `json:"email"`
+		Email string `json:"email" validate:"required"`
 		Name  string `json:"name"`
 	} `json:"from"`
 	ReplyTo struct {
@@ -81,6 +81,8 @@ func (postRequest *PostRequest) Validate() (int, ErrorResponse) {
 				switch err.StructField() {
 				case "Personalizations":
 					return http.StatusBadRequest, GetErrorResponse("The personalizations field is required and must have at least one personalization.", "personalizations", "http://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html#-Personalizations-Errors")
+				case "Email":
+					return http.StatusBadRequest, GetErrorResponse("The from object must be provided for every email send. It is an object that requires the email parameter, but may also contain a name parameter.  e.g. {\"email\" : \"example@example.com\"}  or {\"email\" : \"example@example.com\", \"name\" : \"Example Recipient\"}.", "from.email", "http://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html#message.from")
 				case "Subject":
 					return http.StatusBadRequest, GetErrorResponse("The subject is required. You can get around this requirement if you use a template with a subject defined or if every personalization has a subject defined.", "subject", "http://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html#message.subject")
 				}
