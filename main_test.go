@@ -50,6 +50,29 @@ func TestSend(t *testing.T) {
 		Status(http.StatusBadRequest).
 		End()
 
+	// NG (Missing subject)
+	apitest.New().
+		Handler(route.Init()).
+		Post("/v3/mail/send").
+		JSON(`{
+			"personalizations": [{
+				"to": [{
+					"email": "to@example.com"
+				}]
+			}],
+			"from": {
+				"email": "from@example.com"
+			}, 
+			"content": [{
+				"type": "text/plain", 
+				"value": "Content"
+			}]
+		}`).
+		Expect(t).
+		Body(`{"errors":[{"message":"The subject is required. You can get around this requirement if you use a template with a subject defined or if every personalization has a subject defined.","field":"subject","help":"http://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html#message.subject"}]}`).
+		Status(http.StatusBadRequest).
+		End()
+
 	// OK
 	apitest.New().
 		Handler(route.Init()).
