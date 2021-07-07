@@ -44,9 +44,33 @@ func TestSend(t *testing.T) {
 	apitest.New().
 		Handler(route.Init()).
 		Post("/v3/mail/send").
-		Headers(map[string]string{"Content-Type": "application/json"}).
+		JSON(``).
 		Expect(t).
 		Body(`{"errors":[{"message":"Bad Request","field":null,"help":null}]}`).
 		Status(http.StatusBadRequest).
+		End()
+
+	// OK
+	apitest.New().
+		Handler(route.Init()).
+		Post("/v3/mail/send").
+		JSON(`{
+			"personalizations": [{
+				"to": [{
+					"email": "to@example.com"
+				}]
+			}], 
+			"from": {
+				"email": "from@example.com"
+			}, 
+			"subject": "Subject", 
+			"content": [{
+				"type": "text/plain", 
+				"value": "Content"
+			}]
+		}`).
+		Expect(t).
+		Body(``).
+		Status(http.StatusAccepted).
 		End()
 }
