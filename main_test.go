@@ -50,6 +50,25 @@ func TestSend(t *testing.T) {
 		Status(http.StatusBadRequest).
 		End()
 
+	// NG (Missing personalizations)
+	apitest.New().
+		Handler(route.Init()).
+		Post("/v3/mail/send").
+		JSON(`{
+			"from": {
+				"email": "from@example.com"
+			},
+			"subject": "Subject", 
+			"content": [{
+				"type": "text/plain", 
+				"value": "Content"
+			}]
+		}`).
+		Expect(t).
+		Body(`{"errors":[{"message":"The personalizations field is required and must have at least one personalization.","field":"personalizations","help":"http://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html#-Personalizations-Errors"}]}`).
+		Status(http.StatusBadRequest).
+		End()
+
 	// NG (Missing subject)
 	apitest.New().
 		Handler(route.Init()).

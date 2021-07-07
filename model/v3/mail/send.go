@@ -23,7 +23,7 @@ type PostRequest struct {
 			Email string `json:"email"`
 			Name  string `json:"name"`
 		} `json:"bcc"`
-	} `json:"personalizations"`
+	} `json:"personalizations" validate:"required"`
 	From struct {
 		Email string `json:"email"`
 		Name  string `json:"name"`
@@ -78,7 +78,12 @@ func (postRequest *PostRequest) Validate() (int, ErrorResponse) {
 
 			switch err.ActualTag() {
 			case "required":
-				return http.StatusBadRequest, GetErrorResponse("The subject is required. You can get around this requirement if you use a template with a subject defined or if every personalization has a subject defined.", "subject", "http://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html#message.subject")
+				switch err.StructField() {
+				case "Personalizations":
+					return http.StatusBadRequest, GetErrorResponse("The personalizations field is required and must have at least one personalization.", "personalizations", "http://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html#-Personalizations-Errors")
+				case "Subject":
+					return http.StatusBadRequest, GetErrorResponse("The subject is required. You can get around this requirement if you use a template with a subject defined or if every personalization has a subject defined.", "subject", "http://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html#message.subject")
+				}
 			}
 		}
 	}
