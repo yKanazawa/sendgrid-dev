@@ -36,7 +36,7 @@ type PostRequest struct {
 	Content []struct {
 		Type  string `json:"type"`
 		Value string `json:"value"`
-	} `json:"content"`
+	} `json:"content" validate:"required"`
 	Attachments []struct {
 		Content     string `json:"content"`
 		Type        string `json:"type"`
@@ -95,11 +95,18 @@ func (postRequest *PostRequest) Validate() (int, ErrorResponse) {
 						)
 				case "Subject":
 					return http.StatusBadRequest, 
-					GetErrorResponse(
-						"The subject is required. You can get around this requirement if you use a template with a subject defined or if every personalization has a subject defined.",
-						"subject",
-						"http://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html#message.subject",
-					)
+						GetErrorResponse(
+							"The subject is required. You can get around this requirement if you use a template with a subject defined or if every personalization has a subject defined.",
+							"subject",
+							"http://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html#message.subject",
+						)
+				case "Content":
+					return http.StatusBadRequest, 
+						GetErrorResponse(
+							"Unless a valid template_id is provided, the content parameter is required. There must be at least one defined content block. We typically suggest both text/plain and text/html blocks are included, but only one block is required.",
+							"content",
+							"http://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html#message.content",
+						)
 				}
 			}
 		}

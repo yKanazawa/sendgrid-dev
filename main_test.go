@@ -12,6 +12,7 @@ import (
 func TestSend(t *testing.T) {
 	os.Setenv("SENDGRID_DEV_TEST", "1")
 	os.Setenv("SENDGRID_DEV_APIKEY", "SG.xxxxx")
+
 	// NG (Not POST)
 	apitest.New().
 		Handler(route.Init()).
@@ -110,6 +111,26 @@ func TestSend(t *testing.T) {
 		}`).
 		Expect(t).
 		Body(`{"errors":[{"message":"The subject is required. You can get around this requirement if you use a template with a subject defined or if every personalization has a subject defined.","field":"subject","help":"http://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html#message.subject"}]}`).
+		Status(http.StatusBadRequest).
+		End()
+
+	// NG (Missing content)
+	apitest.New().
+		Handler(route.Init()).
+		Post("/v3/mail/send").
+		JSON(`{
+			"personalizations": [{
+				"to": [{
+					"email": "to@example.com"
+				}]
+			}], 
+			"from": {
+				"email": "from@example.com"
+			}, 
+			"subject": "Subject"
+		}`).
+		Expect(t).
+		Body(`{"errors":[{"message":"Unless a valid template_id is provided, the content parameter is required. There must be at least one defined content block. We typically suggest both text/plain and text/html blocks are included, but only one block is required.","field":"content","help":"http://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html#message.content"}]}`).
 		Status(http.StatusBadRequest).
 		End()
 
