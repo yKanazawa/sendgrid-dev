@@ -22,10 +22,20 @@ func TestSend(t *testing.T) {
 		Status(http.StatusMethodNotAllowed).
 		End()
 
+	// NG (Missing Authorization)
+	apitest.New().
+		Handler(route.Init()).
+		Post("/v3/mail/send").
+		Expect(t).
+		Body(`{"errors":[{"message":"The provided authorization grant is invalid, expired, or revoked","field":null,"help":null}]}`).
+		Status(http.StatusUnsupportedMediaType).
+		End()
+
 	// NG (Missing Content-Type)
 	apitest.New().
 		Handler(route.Init()).
 		Post("/v3/mail/send").
+		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_APIKEY")}).
 		Expect(t).
 		Body(`{"errors":[{"message":"Content-Type should be application/json","field":null,"help":null}]}`).
 		Status(http.StatusUnsupportedMediaType).
@@ -35,6 +45,7 @@ func TestSend(t *testing.T) {
 	apitest.New().
 		Handler(route.Init()).
 		Post("/v3/mail/send").
+		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_APIKEY")}).
 		Headers(map[string]string{"Content-Type": "text/plain"}).
 		Expect(t).
 		Body(`{"errors":[{"message":"Content-Type should be application/json","field":null,"help":null}]}`).
@@ -45,6 +56,7 @@ func TestSend(t *testing.T) {
 	apitest.New().
 		Handler(route.Init()).
 		Post("/v3/mail/send").
+		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_APIKEY")}).
 		JSON(``).
 		Expect(t).
 		Body(`{"errors":[{"message":"Bad Request","field":null,"help":null}]}`).
@@ -55,6 +67,7 @@ func TestSend(t *testing.T) {
 	apitest.New().
 		Handler(route.Init()).
 		Post("/v3/mail/send").
+		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_APIKEY")}).
 		JSON(`{
 			"from": {
 				"email": "from@example.com"
@@ -74,6 +87,7 @@ func TestSend(t *testing.T) {
 	apitest.New().
 		Handler(route.Init()).
 		Post("/v3/mail/send").
+		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_APIKEY")}).
 		JSON(`{
 			"personalizations": [{
 				"to": [{
@@ -95,6 +109,7 @@ func TestSend(t *testing.T) {
 	apitest.New().
 		Handler(route.Init()).
 		Post("/v3/mail/send").
+		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_APIKEY")}).
 		JSON(`{
 			"personalizations": [{
 				"to": [{
@@ -118,6 +133,7 @@ func TestSend(t *testing.T) {
 	apitest.New().
 		Handler(route.Init()).
 		Post("/v3/mail/send").
+		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_APIKEY")}).
 		JSON(`{
 			"personalizations": [{
 				"to": [{
@@ -138,6 +154,7 @@ func TestSend(t *testing.T) {
 	apitest.New().
 		Handler(route.Init()).
 		Post("/v3/mail/send").
+		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_APIKEY")}).
 		JSON(`{
 			"personalizations": [{
 				"to": [{
