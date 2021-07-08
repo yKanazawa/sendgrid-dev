@@ -174,4 +174,210 @@ func TestSend(t *testing.T) {
 		Body(``).
 		Status(http.StatusAccepted).
 		End()
+
+	// OK (multiple to, cc, bcc and reply-to with name)
+	apitest.New().
+		Handler(route.Init()).
+		Post("/v3/mail/send").
+		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_APIKEY")}).
+		JSON(`{
+			"personalizations": [{
+				"to": [{
+					"email": "to1@example.com", 
+					"name": "ToName1"
+				}, {
+					"email": "to2@example.com", 
+					"name": "ToName2"
+				}], 
+				"cc": [{
+					"email": "cc1@example.com", 
+					"name": "CcName1"
+				}, {
+					"email": "cc2@example.com", 
+					"name": "CcName2"
+				}],
+				"bcc": [{
+					"email": "bcc1@example.com", 
+					"name": "BccName1"
+				}, {
+					"email": "bcc2@example.com", 
+					"name": "BccName2"
+				}]
+			}], 
+			"from": {
+				"email": "from@example.com", 
+				"name": "FromName"
+			}, 
+			"reply_to": {
+				"email": "reply_to@example.com", 
+				"name": "ReplyToName"
+			}, 
+			"subject": "Subject", 
+			"content": [{
+				"type": "text/plain", 
+				"value": "Content"
+			}]
+		}`).
+		Expect(t).
+		Body(``).
+		Status(http.StatusAccepted).
+		End()
+
+	// OK (multiple personalizations)
+	apitest.New().
+		Handler(route.Init()).
+		Post("/v3/mail/send").
+		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_APIKEY")}).
+		JSON(`{
+			"personalizations": [
+				{
+					"to": [{
+						"email": "to1@example.com", 
+						"name": "ToName1"
+					}, {
+						"email": "to2@example.com", 
+						"name": "ToName2"
+					}]
+				},
+				{
+					"to": [{
+						"email": "to3@example.com", 
+						"name": "ToName3"
+					}, {
+						"email": "to4@example.com", 
+						"name": "ToName4"
+					}]
+				}
+			], 
+			"from": {
+				"email": "from@example.com", 
+				"name": "FromName"
+			}, 
+			"subject": "Subject", 
+			"content": [{
+				"type": "text/plain", 
+				"value": "Content"
+			}]
+		}`).
+		Expect(t).
+		Body(``).
+		Status(http.StatusAccepted).
+		End()
+
+	// OK (text/html)
+	apitest.New().
+		Handler(route.Init()).
+		Post("/v3/mail/send").
+		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_APIKEY")}).
+		JSON(`{
+			"personalizations": [{
+				"to": [{
+					"email": "to@example.com"
+				}]
+			}], 
+			"from": {
+				"email": "from@example.com"
+			}, 
+			"subject": "Subject", 
+			"content": [{
+				"type": "text/html", 
+				"value": "<h1>Content</h1>"
+			}]
+		}`).
+		Expect(t).
+		Body(``).
+		Status(http.StatusAccepted).
+		End()
+
+	// OK (multiple content text/plain, text/html)
+	apitest.New().
+		Handler(route.Init()).
+		Post("/v3/mail/send").
+		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_APIKEY")}).
+		JSON(`{
+			"personalizations": [{
+				"to": [{
+					"email": "to@example.com"
+				}]
+			}], 
+			"from": {
+				"email": "from@example.com"
+			}, 
+			"subject": "Subject", 
+			"content": [{
+				"type": "text/plain", 
+				"value": "Content1"
+			}, {
+				"type": "text/html", 
+				"value": "<h1>Content2</h1>"
+			}]
+		}`).
+		Expect(t).
+		Body(``).
+		Status(http.StatusAccepted).
+		End()
+
+	// OK (attachements)
+	apitest.New().
+		Handler(route.Init()).
+		Post("/v3/mail/send").
+		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_APIKEY")}).
+		JSON(`{
+			"personalizations": [{
+				"to": [{
+					"email": "to@example.com"
+				}]
+			}], 
+			"from": {
+				"email": "from@example.com"
+			}, 
+			"subject": "Subject", 
+			"content": [{
+				"type": "text/plain", 
+				"value": "Content"
+			}],
+			"attachments": [{
+				"content": "dGVzdA==", 
+				"type": "text/plain", 
+				"filename": "attachment.txt"
+			}]
+		}`).
+		Expect(t).
+		Body(``).
+		Status(http.StatusAccepted).
+		End()
+
+	// OK (multiple attachements)
+	apitest.New().
+		Handler(route.Init()).
+		Post("/v3/mail/send").
+		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_APIKEY")}).
+		JSON(`{
+				"personalizations": [{
+					"to": [{
+						"email": "to@example.com"
+					}]
+				}], 
+				"from": {
+					"email": "from@example.com"
+				}, 
+				"subject": "Subject", 
+				"content": [{
+					"type": "text/plain", 
+					"value": "Content"
+				}],
+				"attachments": [{
+					"content": "dGVzdA==", 
+					"type": "text/plain", 
+					"filename": "attachment1.txt"
+				}, {
+					"content": "dGVzdA==", 
+					"type": "text/plain", 
+					"filename": "attachment2.txt"
+				}]
+			}`).
+		Expect(t).
+		Body(``).
+		Status(http.StatusAccepted).
+		End()
 }
