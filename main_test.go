@@ -353,31 +353,95 @@ func TestSend(t *testing.T) {
 		Post("/v3/mail/send").
 		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_APIKEY")}).
 		JSON(`{
-				"personalizations": [{
-					"to": [{
-						"email": "to@example.com"
-					}]
-				}], 
-				"from": {
-					"email": "from@example.com"
-				}, 
-				"subject": "Subject", 
-				"content": [{
-					"type": "text/plain", 
-					"value": "Content"
-				}],
-				"attachments": [{
-					"content": "dGVzdA==", 
-					"type": "text/plain", 
-					"filename": "attachment1.txt"
-				}, {
-					"content": "dGVzdA==", 
-					"type": "text/plain", 
-					"filename": "attachment2.txt"
+			"personalizations": [{
+				"to": [{
+					"email": "to@example.com"
 				}]
-			}`).
+			}], 
+			"from": {
+				"email": "from@example.com"
+			}, 
+			"subject": "Subject", 
+			"content": [{
+				"type": "text/plain", 
+				"value": "Content"
+			}],
+			"attachments": [{
+				"content": "dGVzdA==", 
+				"type": "text/plain", 
+				"filename": "attachment1.txt"
+			}, {
+				"content": "dGVzdA==", 
+				"type": "text/plain", 
+				"filename": "attachment2.txt"
+			}]
+		}`).
 		Expect(t).
 		Body(``).
 		Status(http.StatusAccepted).
+		End()
+
+	// NG (attachements content is not BASE64)
+	apitest.New().
+		Handler(route.Init()).
+		Post("/v3/mail/send").
+		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_APIKEY")}).
+		JSON(`{
+			"personalizations": [{
+				"to": [{
+					"email": "to@example.com"
+				}]
+			}], 
+			"from": {
+				"email": "from@example.com"
+			}, 
+			"subject": "Subject", 
+			"content": [{
+				"type": "text/plain", 
+				"value": "Content"
+			}],
+			"attachments": [{
+				"content": "NOT BASE64", 
+				"type": "text/plain", 
+				"filename": "attachment.txt"
+			}]
+		}`).
+		Expect(t).
+		Body(`{"errors":[{"message":"The attachment content must be base64 encoded.","field":"attachments.0.content","help":"http://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html#message.attachments.content"}]}`).
+		Status(http.StatusBadRequest).
+		End()
+
+	// NG (attachements content is not BASE64 in multiple)
+	apitest.New().
+		Handler(route.Init()).
+		Post("/v3/mail/send").
+		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_APIKEY")}).
+		JSON(`{
+			"personalizations": [{
+				"to": [{
+					"email": "to@example.com"
+				}]
+			}], 
+			"from": {
+				"email": "from@example.com"
+			}, 
+			"subject": "Subject", 
+			"content": [{
+				"type": "text/plain", 
+				"value": "Content"
+			}],
+			"attachments": [{
+				"content": "dGVzdA==", 
+				"type": "text/plain", 
+				"filename": "attachment1.txt"
+			}, {
+				"content": "NOT_BASE64", 
+				"type": "text/plain", 
+				"filename": "attachment2.txt"
+			}]
+		}`).
+		Expect(t).
+		Body(`{"errors":[{"message":"The attachment content must be base64 encoded.","field":"attachments.1.content","help":"http://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html#message.attachments.content"}]}`).
+		Status(http.StatusBadRequest).
 		End()
 }

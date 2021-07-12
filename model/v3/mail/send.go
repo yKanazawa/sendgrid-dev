@@ -1,12 +1,18 @@
 package send
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"io"
+	"os"
+	"path/filepath"
+	"strconv"
+	"time"
 
 	"gopkg.in/go-playground/validator.v9"
+	"github.com/jordan-wright/email"
 )
 
 type PostRequest struct {
@@ -62,20 +68,6 @@ func (postRequest *PostRequest) Validate() (int, ErrorResponse) {
 	validate := validator.New()
 	if err := validate.Struct(postRequest); err != nil {
 		for _, err := range err.(validator.ValidationErrors) {
-
-			// Debug
-			fmt.Println("err.Namespace()", err.Namespace())
-			fmt.Println("err.Field()", err.Field())
-			fmt.Println("err.StructNamespace()", err.StructNamespace())
-			fmt.Println("err.StructField()", err.StructField())
-			fmt.Println("err.Tag()", err.Tag())
-			fmt.Println("err.ActualTag()", err.ActualTag())
-			fmt.Println("err.Kind()", err.Kind())
-			fmt.Println("err.Type()", err.Type())
-			fmt.Println("err.Value()", err.Value())
-			fmt.Println("err.Param()", err.Param())
-			fmt.Println()
-
 			switch err.ActualTag() {
 			case "required":
 				switch err.StructField() {
@@ -111,7 +103,8 @@ func (postRequest *PostRequest) Validate() (int, ErrorResponse) {
 			}
 		}
 	}
-	return http.StatusAccepted, GetErrorResponse("", nil, nil)
+
+	return sendMailWithSMTP(*postRequest)
 }
 
 func GetErrorResponse (message string, field interface{}, help interface{}) ErrorResponse {
@@ -128,4 +121,102 @@ func GetErrorResponse (message string, field interface{}, help interface{}) Erro
 	errorJSON.Errors = append(errorJSON.Errors, e)
 
 	return errorJSON
+}
+
+//
+// Send mail with SMTP
+//
+func sendMailWithSMTP(postRequest PostRequest)  (int, ErrorResponse) {
+	smtpServer := os.Getenv("SENDGRID_DEV_SMTP_SERVER")
+	if smtpServer == "" {
+		smtpServer = "localhost"
+	}
+
+	smtpPort, err := strconv.Atoi(os.Getenv("SENDGRID_DEV_SMTP_PORT"))
+	if err != nil || smtpPort < 0 || smtpPort > 65535 {
+		smtpPort = 1025
+	}
+
+	for _, personalizations := range postRequest.Personalizations {
+		e := email.NewEmail()
+
+		e.From = postRequest.From.Email
+
+		for _, to := range personalizations.To {
+			e.To = append(e.To, getEmailwithName(to))
+		}
+
+		for _, cc := range personalizations.Cc {
+			e.Cc = append(e.Cc, getEmailwithName(cc))
+		}
+
+		for _, bcc := range personalizations.Bcc {
+			e.Bcc = append(e.Bcc, getEmailwithName(bcc))
+		}
+
+		e.Subject = postRequest.Subject
+
+		for _, content := range postRequest.Content {
+			if content.Type == "text/html" {
+				e.HTML = []byte(content.Value)
+			} else {
+				e.Text = []byte(content.Value)
+			}
+		}
+
+		i := 0
+		for _, attachment := range postRequest.Attachments {
+			dirName := createAttachment(attachment.Filename, attachment.Content, i)
+			if (dirName == "") {
+				return http.StatusBadRequest, 
+					GetErrorResponse(
+						"The attachment content must be base64 encoded.", 
+						"attachments."+strconv.Itoa(i)+".content", 
+						"http://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html#message.attachments.content",
+					)
+			}
+			e.AttachFile(filepath.Join(dirName, attachment.Filename))
+			i++
+		}
+
+		if os.Getenv("SENDGRID_DEV_TEST") == "1" {
+			continue
+		}
+
+		e.Send(smtpServer+":"+strconv.Itoa(smtpPort), nil)
+	}
+	return http.StatusAccepted, GetErrorResponse("", nil, nil)
+}
+
+//
+// Get "Name <name@example.com>"
+//
+func getEmailwithName(t struct {
+	Email string `json:"email"`
+	Name  string `json:"name"`
+}) string {
+	return t.Name + " <" + t.Email + ">"
+}
+
+//
+// Create attachment from base64 string
+//
+func createAttachment(fileName string, base64Content string, i int) string {
+	data, err := base64.StdEncoding.DecodeString(base64Content)
+	if err != nil {
+		return ""
+	}
+
+	dirName := filepath.Join(os.TempDir(), "attachment_"+strconv.FormatInt(time.Now().UnixNano(), 10))
+	os.Mkdir(dirName, 0777)
+	file, err := os.Create(filepath.Join(dirName, fileName))
+	if err != nil {
+		fmt.Println("Create file failed.", fileName)
+		return ""
+	}
+
+	defer file.Close()
+	file.Write(data)
+
+	return dirName
 }

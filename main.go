@@ -11,8 +11,8 @@ import (
 func main() {
 	fmt.Println("SENDGRID_DEV_PORT", os.Getenv("SENDGRID_DEV_PORT"))
 	fmt.Println("SENDGRID_DEV_APIKEY", os.Getenv("SENDGRID_DEV_APIKEY"))
-	fmt.Println("SENDGRID_SERVER_PORT", os.Getenv("SENDGRID_SMTP_SERVER"))
-	fmt.Println("SENDGRID_SMTP_PORT", os.Getenv("SENDGRID_SMTP_PORT"))
+	fmt.Println("SENDGRID_DEV_SMTP_SERVER", os.Getenv("SENDGRID_DEV_SMTP_SERVER"))
+	fmt.Println("SENDGRID_DEV_SMTP_PORT", os.Getenv("SENDGRID_DEV_SMTP_PORT"))
 
 	port, err := strconv.Atoi(os.Getenv("SENDGRID_DEV_PORT"))
 	if err != nil || port < 0 || port > 65535 {
