@@ -129,7 +129,7 @@ func GetErrorResponse (message string, field interface{}, help interface{}) Erro
 func sendMailWithSMTP(postRequest PostRequest)  (int, ErrorResponse) {
 	smtpServer := os.Getenv("SENDGRID_DEV_SMTP_SERVER")
 	if smtpServer == "" {
-		smtpServer = "localhost"
+		smtpServer = "127.0.0.1"
 	}
 
 	smtpPort, err := strconv.Atoi(os.Getenv("SENDGRID_DEV_SMTP_PORT"))
