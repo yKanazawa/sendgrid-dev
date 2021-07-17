@@ -3,22 +3,26 @@ package main
 import (
 	"fmt"
 	"os"
-	"strconv"
 
 	"github.com/yKanazawa/sendgrid-dev/route"
 )
 
 func main() {
-	fmt.Println("SENDGRID_DEV_PORT", os.Getenv("SENDGRID_DEV_PORT"))
-	fmt.Println("SENDGRID_DEV_APIKEY", os.Getenv("SENDGRID_DEV_APIKEY"))
-	fmt.Println("SENDGRID_DEV_SMTP_SERVER", os.Getenv("SENDGRID_DEV_SMTP_SERVER"))
-	fmt.Println("SENDGRID_DEV_SMTP_PORT", os.Getenv("SENDGRID_DEV_SMTP_PORT"))
-
-	port, err := strconv.Atoi(os.Getenv("SENDGRID_DEV_PORT"))
-	if err != nil || port < 0 || port > 65535 {
-		port = 3030
+	if os.Getenv("SENDGRID_DEV_API_SERVER") == "" {
+		os.Setenv("SENDGRID_DEV_API_SERVER", "127.0.0.1:3030")
 	}
+	fmt.Println("SENDGRID_DEV_API_SERVER", os.Getenv("SENDGRID_DEV_API_SERVER"))
+
+	if os.Getenv("SENDGRID_DEV_API_KEY") == "" {
+		os.Setenv("SENDGRID_DEV_APIK_EY", "SG.xxxxx")
+	}
+	fmt.Println("SENDGRID_DEV_APIKEY", os.Getenv("SENDGRID_DEV_APIKEY"))
+
+	if os.Getenv("SENDGRID_DEV_SMTP_SERVER") == "" {
+		os.Setenv("SENDGRID_DEV_SMTP_SERVER", "127.0.0.1:1025")
+	}
+	fmt.Println("SENDGRID_DEV_SMTP_SERVER", os.Getenv("SENDGRID_DEV_SMTP_SERVER"))
 
 	router := route.Init()
-	router.Logger.Fatal(router.Start(":" + strconv.Itoa(port)))
+	router.Logger.Fatal(router.Start(os.Getenv("SENDGRID_DEV_API_SERVER")))
 }

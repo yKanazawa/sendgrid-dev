@@ -127,16 +127,6 @@ func GetErrorResponse (message string, field interface{}, help interface{}) Erro
 // Send mail with SMTP
 //
 func sendMailWithSMTP(postRequest PostRequest)  (int, ErrorResponse) {
-	smtpServer := os.Getenv("SENDGRID_DEV_SMTP_SERVER")
-	if smtpServer == "" {
-		smtpServer = "127.0.0.1"
-	}
-
-	smtpPort, err := strconv.Atoi(os.Getenv("SENDGRID_DEV_SMTP_PORT"))
-	if err != nil || smtpPort < 0 || smtpPort > 65535 {
-		smtpPort = 1025
-	}
-
 	for _, personalizations := range postRequest.Personalizations {
 		e := email.NewEmail()
 
@@ -183,7 +173,7 @@ func sendMailWithSMTP(postRequest PostRequest)  (int, ErrorResponse) {
 			continue
 		}
 
-		e.Send(smtpServer+":"+strconv.Itoa(smtpPort), nil)
+		e.Send(os.Getenv("SENDGRID_DEV_SMTP_SERVER"), nil)
 	}
 	return http.StatusAccepted, GetErrorResponse("", nil, nil)
 }

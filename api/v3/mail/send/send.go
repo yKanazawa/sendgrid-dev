@@ -25,7 +25,7 @@ func GetSend() echo.HandlerFunc {
 func PostSend() echo.HandlerFunc {
 	return func(c echo.Context) (err error) {
 		Authorization := c.Request().Header["Authorization"]
-		if len(Authorization) == 0 || Authorization[0] != "Bearer "+os.Getenv("SENDGRID_DEV_APIKEY") {
+		if len(Authorization) == 0 || Authorization[0] != "Bearer "+os.Getenv("SENDGRID_DEV_API_KEY") {
 			return c.JSON(http.StatusUnsupportedMediaType, model.GetErrorResponse("The provided authorization grant is invalid, expired, or revoked", nil, nil))
 		}
 

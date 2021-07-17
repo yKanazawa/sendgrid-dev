@@ -11,7 +11,6 @@ import (
 
 func TestSend(t *testing.T) {
 	os.Setenv("SENDGRID_DEV_TEST", "1")
-	os.Setenv("SENDGRID_DEV_APIKEY", "SG.xxxxx")
 
 	// NG (Not POST)
 	apitest.New().
@@ -35,7 +34,7 @@ func TestSend(t *testing.T) {
 	apitest.New().
 		Handler(route.Init()).
 		Post("/v3/mail/send").
-		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_APIKEY")}).
+		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_API_KEY")}).
 		Expect(t).
 		Body(`{"errors":[{"message":"Content-Type should be application/json","field":null,"help":null}]}`).
 		Status(http.StatusUnsupportedMediaType).
@@ -45,7 +44,7 @@ func TestSend(t *testing.T) {
 	apitest.New().
 		Handler(route.Init()).
 		Post("/v3/mail/send").
-		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_APIKEY")}).
+		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_API_KEY")}).
 		Headers(map[string]string{"Content-Type": "text/plain"}).
 		Expect(t).
 		Body(`{"errors":[{"message":"Content-Type should be application/json","field":null,"help":null}]}`).
@@ -56,7 +55,7 @@ func TestSend(t *testing.T) {
 	apitest.New().
 		Handler(route.Init()).
 		Post("/v3/mail/send").
-		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_APIKEY")}).
+		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_API_KEY")}).
 		JSON(``).
 		Expect(t).
 		Body(`{"errors":[{"message":"Bad Request","field":null,"help":null}]}`).
@@ -67,7 +66,7 @@ func TestSend(t *testing.T) {
 	apitest.New().
 		Handler(route.Init()).
 		Post("/v3/mail/send").
-		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_APIKEY")}).
+		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_API_KEY")}).
 		JSON(`{
 			"from": {
 				"email": "from@example.com"
@@ -87,7 +86,7 @@ func TestSend(t *testing.T) {
 	apitest.New().
 		Handler(route.Init()).
 		Post("/v3/mail/send").
-		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_APIKEY")}).
+		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_API_KEY")}).
 		JSON(`{
 			"personalizations": [{
 				"to": [{
@@ -109,7 +108,7 @@ func TestSend(t *testing.T) {
 	apitest.New().
 		Handler(route.Init()).
 		Post("/v3/mail/send").
-		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_APIKEY")}).
+		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_API_KEY")}).
 		JSON(`{
 			"personalizations": [{
 				"to": [{
@@ -133,7 +132,7 @@ func TestSend(t *testing.T) {
 	apitest.New().
 		Handler(route.Init()).
 		Post("/v3/mail/send").
-		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_APIKEY")}).
+		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_API_KEY")}).
 		JSON(`{
 			"personalizations": [{
 				"to": [{
@@ -154,7 +153,7 @@ func TestSend(t *testing.T) {
 	apitest.New().
 		Handler(route.Init()).
 		Post("/v3/mail/send").
-		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_APIKEY")}).
+		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_API_KEY")}).
 		JSON(`{
 			"personalizations": [{
 				"to": [{
@@ -179,7 +178,7 @@ func TestSend(t *testing.T) {
 	apitest.New().
 		Handler(route.Init()).
 		Post("/v3/mail/send").
-		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_APIKEY")}).
+		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_API_KEY")}).
 		JSON(`{
 			"personalizations": [{
 				"to": [{
@@ -227,7 +226,7 @@ func TestSend(t *testing.T) {
 	apitest.New().
 		Handler(route.Init()).
 		Post("/v3/mail/send").
-		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_APIKEY")}).
+		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_API_KEY")}).
 		JSON(`{
 			"personalizations": [
 				{
@@ -268,7 +267,7 @@ func TestSend(t *testing.T) {
 	apitest.New().
 		Handler(route.Init()).
 		Post("/v3/mail/send").
-		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_APIKEY")}).
+		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_API_KEY")}).
 		JSON(`{
 			"personalizations": [{
 				"to": [{
@@ -293,7 +292,7 @@ func TestSend(t *testing.T) {
 	apitest.New().
 		Handler(route.Init()).
 		Post("/v3/mail/send").
-		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_APIKEY")}).
+		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_API_KEY")}).
 		JSON(`{
 			"personalizations": [{
 				"to": [{
@@ -321,7 +320,7 @@ func TestSend(t *testing.T) {
 	apitest.New().
 		Handler(route.Init()).
 		Post("/v3/mail/send").
-		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_APIKEY")}).
+		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_API_KEY")}).
 		JSON(`{
 			"personalizations": [{
 				"to": [{
@@ -351,7 +350,7 @@ func TestSend(t *testing.T) {
 	apitest.New().
 		Handler(route.Init()).
 		Post("/v3/mail/send").
-		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_APIKEY")}).
+		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_API_KEY")}).
 		JSON(`{
 			"personalizations": [{
 				"to": [{
@@ -385,7 +384,7 @@ func TestSend(t *testing.T) {
 	apitest.New().
 		Handler(route.Init()).
 		Post("/v3/mail/send").
-		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_APIKEY")}).
+		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_API_KEY")}).
 		JSON(`{
 			"personalizations": [{
 				"to": [{
@@ -415,7 +414,7 @@ func TestSend(t *testing.T) {
 	apitest.New().
 		Handler(route.Init()).
 		Post("/v3/mail/send").
-		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_APIKEY")}).
+		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_API_KEY")}).
 		JSON(`{
 			"personalizations": [{
 				"to": [{
