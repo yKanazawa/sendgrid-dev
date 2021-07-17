@@ -9,7 +9,7 @@ import (
 
 func main() {
 	if os.Getenv("SENDGRID_DEV_API_SERVER") == "" {
-		os.Setenv("SENDGRID_DEV_API_SERVER", "127.0.0.1:3030")
+		os.Setenv("SENDGRID_DEV_API_SERVER", ":3030")
 	}
 	fmt.Println("SENDGRID_DEV_API_SERVER", os.Getenv("SENDGRID_DEV_API_SERVER"))
 
