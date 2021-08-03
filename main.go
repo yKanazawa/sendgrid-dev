@@ -22,6 +22,8 @@ func main() {
 		os.Setenv("SENDGRID_DEV_SMTP_SERVER", "127.0.0.1:1025")
 	}
 	fmt.Println("SENDGRID_DEV_SMTP_SERVER", os.Getenv("SENDGRID_DEV_SMTP_SERVER"))
+	fmt.Println("SENDGRID_DEV_SMTP_USERNAME", os.Getenv("SENDGRID_DEV_SMTP_USERNAME"))
+	fmt.Println("SENDGRID_DEV_SMTP_PASSWORD", os.Getenv("SENDGRID_DEV_SMTP_PASSWORD"))
 
 	router := route.Init()
 	router.Logger.Fatal(router.Start(os.Getenv("SENDGRID_DEV_API_SERVER")))
