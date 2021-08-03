@@ -443,4 +443,30 @@ func TestSend(t *testing.T) {
 		Body(`{"errors":[{"message":"The attachment content must be base64 encoded.","field":"attachments.1.content","help":"http://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html#message.attachments.content"}]}`).
 		Status(http.StatusBadRequest).
 		End()
+
+	// OK (with SMTP Auth)
+	os.Setenv("SENDGRID_DEV_SMTP_USERNAME", "username@example.com")
+	apitest.New().
+		Handler(route.Init()).
+		Post("/v3/mail/send").
+		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_API_KEY")}).
+		JSON(`{
+			"personalizations": [{
+				"to": [{
+					"email": "to@example.com"
+				}]
+			}], 
+			"from": {
+				"email": "from@example.com"
+			}, 
+			"subject": "Subject", 
+			"content": [{
+				"type": "text/plain", 
+				"value": "Content"
+			}]
+		}`).
+		Expect(t).
+		Body(``).
+		Status(http.StatusAccepted).
+		End()
 }
