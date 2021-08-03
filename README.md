@@ -9,7 +9,9 @@ SendGrid Dev is SengGrid mock API for test your sendgrid emails during developme
 ## Debug
 
 ```
-env SENDGRID_DEV_API_KEY=SG.xxxxx go run main.go
+export SENDGRID_DEV_API_KEY=SG.xxxxx
+export SENDGRID_DEV_SMTP_SERVER=smtp.example.com:25
+go run main.go
 ```
 
 ## Test
