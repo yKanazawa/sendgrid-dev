@@ -132,7 +132,7 @@ func sendMailWithSMTP(postRequest PostRequest)  (int, ErrorResponse) {
 	for _, personalizations := range postRequest.Personalizations {
 		e := email.NewEmail()
 
-		e.From = postRequest.From.Email
+		e.From = postRequest.From.Name + " <" + postRequest.From.Email + ">"
 
 		for _, to := range personalizations.To {
 			e.To = append(e.To, getEmailwithName(to))
