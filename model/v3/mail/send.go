@@ -4,22 +4,23 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/smtp"
-	"io"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 
-	"gopkg.in/go-playground/validator.v9"
 	"github.com/jordan-wright/email"
+	"gopkg.in/go-playground/validator.v9"
 )
 
 type PostRequest struct {
 	Personalizations []struct {
-		To []struct {
+		Subject string `json:"subject"`
+		To      []struct {
 			Email string `json:"email"`
 			Name  string `json:"name"`
 		} `json:"to"`
@@ -40,7 +41,7 @@ type PostRequest struct {
 		Email string `json:"email"`
 		Name  string `json:"name"`
 	} `json:"reply_to"`
-	Subject string `json:"subject" validate:"required"`
+	Subject string `json:"subject"`
 	Content []struct {
 		Type  string `json:"type"`
 		Value string `json:"value"`
@@ -63,7 +64,7 @@ type ErrorResponse struct {
 }
 
 func (postRequest *PostRequest) SetPostRequest(requestBody io.ReadCloser) error {
-	return json.NewDecoder(requestBody).Decode(&postRequest);
+	return json.NewDecoder(requestBody).Decode(&postRequest)
 }
 
 func (postRequest *PostRequest) Validate() (int, ErrorResponse) {
@@ -74,28 +75,21 @@ func (postRequest *PostRequest) Validate() (int, ErrorResponse) {
 			case "required":
 				switch err.StructField() {
 				case "Personalizations":
-					return http.StatusBadRequest, 
+					return http.StatusBadRequest,
 						GetErrorResponse(
-							"The personalizations field is required and must have at least one personalization.", 
-							"personalizations", 
+							"The personalizations field is required and must have at least one personalization.",
+							"personalizations",
 							"http://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html#-Personalizations-Errors",
 						)
 				case "Email":
-					return http.StatusBadRequest, 
+					return http.StatusBadRequest,
 						GetErrorResponse(
-							"The from object must be provided for every email send. It is an object that requires the email parameter, but may also contain a name parameter.  e.g. {\"email\" : \"example@example.com\"}  or {\"email\" : \"example@example.com\", \"name\" : \"Example Recipient\"}.", 
-							"from.email", 
+							"The from object must be provided for every email send. It is an object that requires the email parameter, but may also contain a name parameter.  e.g. {\"email\" : \"example@example.com\"}  or {\"email\" : \"example@example.com\", \"name\" : \"Example Recipient\"}.",
+							"from.email",
 							"http://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html#message.from",
 						)
-				case "Subject":
-					return http.StatusBadRequest, 
-						GetErrorResponse(
-							"The subject is required. You can get around this requirement if you use a template with a subject defined or if every personalization has a subject defined.",
-							"subject",
-							"http://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html#message.subject",
-						)
 				case "Content":
-					return http.StatusBadRequest, 
+					return http.StatusBadRequest,
 						GetErrorResponse(
 							"Unless a valid template_id is provided, the content parameter is required. There must be at least one defined content block. We typically suggest both text/plain and text/html blocks are included, but only one block is required.",
 							"content",
@@ -109,26 +103,24 @@ func (postRequest *PostRequest) Validate() (int, ErrorResponse) {
 	return sendMailWithSMTP(*postRequest)
 }
 
-func GetErrorResponse (message string, field interface{}, help interface{}) ErrorResponse {
+func GetErrorResponse(message string, field interface{}, help interface{}) ErrorResponse {
 	errorJSON := ErrorResponse{}
-    e := struct {
+	e := struct {
 		Message string      `json:"message"`
 		Field   interface{} `json:"field"`
 		Help    interface{} `json:"help"`
-    } {
-        message,
+	}{
+		message,
 		field,
 		help,
-    }
+	}
 	errorJSON.Errors = append(errorJSON.Errors, e)
 
 	return errorJSON
 }
 
-//
 // Send mail with SMTP
-//
-func sendMailWithSMTP(postRequest PostRequest)  (int, ErrorResponse) {
+func sendMailWithSMTP(postRequest PostRequest) (int, ErrorResponse) {
 	for _, personalizations := range postRequest.Personalizations {
 		e := email.NewEmail()
 
@@ -146,7 +138,7 @@ func sendMailWithSMTP(postRequest PostRequest)  (int, ErrorResponse) {
 			e.Bcc = append(e.Bcc, getEmailwithName(bcc))
 		}
 
-		e.Subject = postRequest.Subject
+		e.Subject = personalizations.Subject
 
 		for _, content := range postRequest.Content {
 			if content.Type == "text/html" {
@@ -159,11 +151,11 @@ func sendMailWithSMTP(postRequest PostRequest)  (int, ErrorResponse) {
 		i := 0
 		for _, attachment := range postRequest.Attachments {
 			dirName := createAttachment(attachment.Filename, attachment.Content, i)
-			if (dirName == "") {
-				return http.StatusBadRequest, 
+			if dirName == "" {
+				return http.StatusBadRequest,
 					GetErrorResponse(
-						"The attachment content must be base64 encoded.", 
-						"attachments."+strconv.Itoa(i)+".content", 
+						"The attachment content must be base64 encoded.",
+						"attachments."+strconv.Itoa(i)+".content",
 						"http://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html#message.attachments.content",
 					)
 			}
@@ -178,11 +170,11 @@ func sendMailWithSMTP(postRequest PostRequest)  (int, ErrorResponse) {
 		if len(os.Getenv("SENDGRID_DEV_SMTP_USERNAME")) > 0 {
 			arr := strings.Split(os.Getenv("SENDGRID_DEV_SMTP_SERVER"), ":")
 			e.Send(
-				os.Getenv("SENDGRID_DEV_SMTP_SERVER"), 
+				os.Getenv("SENDGRID_DEV_SMTP_SERVER"),
 				smtp.PlainAuth(
-					"", 
-					os.Getenv("SENDGRID_DEV_SMTP_USERNAME"), 
-					os.Getenv("SENDGRID_DEV_SMTP_PASSWORD"), 
+					"",
+					os.Getenv("SENDGRID_DEV_SMTP_USERNAME"),
+					os.Getenv("SENDGRID_DEV_SMTP_PASSWORD"),
 					arr[0],
 				),
 			)
@@ -193,9 +185,7 @@ func sendMailWithSMTP(postRequest PostRequest)  (int, ErrorResponse) {
 	return http.StatusAccepted, GetErrorResponse("", nil, nil)
 }
 
-//
 // Get "Name <name@example.com>"
-//
 func getEmailwithName(t struct {
 	Email string `json:"email"`
 	Name  string `json:"name"`
@@ -203,9 +193,7 @@ func getEmailwithName(t struct {
 	return t.Name + " <" + t.Email + ">"
 }
 
-//
 // Create attachment from base64 string
-//
 func createAttachment(fileName string, base64Content string, i int) string {
 	data, err := base64.StdEncoding.DecodeString(base64Content)
 	if err != nil {
