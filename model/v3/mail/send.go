@@ -32,6 +32,7 @@ type PostRequest struct {
 			Email string `json:"email"`
 			Name  string `json:"name"`
 		} `json:"bcc"`
+		DynamicTemplateData interface{} `json:"dynamic_template_data"`
 	} `json:"personalizations" validate:"required"`
 	From struct {
 		Email string `json:"email" validate:"required"`
@@ -53,6 +54,7 @@ type PostRequest struct {
 		Disposition string `json:"disposition"`
 		ContentId   string `json:"content_id"`
 	} `json:"attachments"`
+	TemplateId string `json:"template_id"`
 }
 
 type ErrorResponse struct {
@@ -87,13 +89,6 @@ func (postRequest *PostRequest) Validate() (int, ErrorResponse) {
 							"The from object must be provided for every email send. It is an object that requires the email parameter, but may also contain a name parameter.  e.g. {\"email\" : \"example@example.com\"}  or {\"email\" : \"example@example.com\", \"name\" : \"Example Recipient\"}.",
 							"from.email",
 							"http://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html#message.from",
-						)
-				case "Content":
-					return http.StatusBadRequest,
-						GetErrorResponse(
-							"Unless a valid template_id is provided, the content parameter is required. There must be at least one defined content block. We typically suggest both text/plain and text/html blocks are included, but only one block is required.",
-							"content",
-							"http://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html#message.content",
 						)
 				}
 			}
@@ -146,6 +141,11 @@ func sendMailWithSMTP(postRequest PostRequest) (int, ErrorResponse) {
 			} else {
 				e.Text = []byte(content.Value)
 			}
+		}
+
+		if personalizations.DynamicTemplateData != nil {
+			b, _ := json.Marshal(personalizations.DynamicTemplateData)
+			e.Text = b
 		}
 
 		i := 0
