@@ -31,6 +31,7 @@ type PostRequest struct {
 			Email string `json:"email"`
 			Name  string `json:"name"`
 		} `json:"bcc"`
+		Substitutions map[string]string `json:"substitutions"`
 	} `json:"personalizations" validate:"required"`
 	From struct {
 		Email string `json:"email" validate:"required"`
@@ -146,13 +147,19 @@ func sendMailWithSMTP(postRequest PostRequest)  (int, ErrorResponse) {
 			e.Bcc = append(e.Bcc, getEmailwithName(bcc))
 		}
 
-		e.Subject = postRequest.Subject
+		replacements := make([]string, len(personalizations.Substitutions) * 2)
+		for key, value := range personalizations.Substitutions {
+			replacements = append(replacements, key, value)
+		}
+		replacer := strings.NewReplacer(replacements...)
+
+		e.Subject = replacer.Replace(postRequest.Subject)
 
 		for _, content := range postRequest.Content {
 			if content.Type == "text/html" {
-				e.HTML = []byte(content.Value)
+				e.HTML = []byte(replacer.Replace((content.Value)))
 			} else {
-				e.Text = []byte(content.Value)
+				e.Text = []byte(replacer.Replace((content.Value)))
 			}
 		}
 

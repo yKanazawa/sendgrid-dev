@@ -263,6 +263,47 @@ func TestSend(t *testing.T) {
 		Status(http.StatusAccepted).
 		End()
 
+	// OK (multiple personalizations with substitutions)
+	apitest.New().
+		Handler(route.Init()).
+		Post("/v3/mail/send").
+		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_API_KEY")}).
+		JSON(`{
+			"personalizations": [
+				{
+					"to": [{
+						"email": "to1@example.com",
+						"name": "ToName1"
+					}],
+					"substitutions": {
+						"-name-": "to1"
+					}
+				},
+				{
+					"to": [{
+						"email": "to2@example.com",
+						"name": "ToName2"
+					}],
+					"substitutions": {
+						"-name-": "to2"
+					}
+				}
+			],
+			"from": {
+				"email": "from@example.com",
+				"name": "FromName"
+			},
+			"subject": "Subject",
+			"content": [{
+				"type": "text/plain",
+				"value": "Content -name-"
+			}]
+		}`).
+		Expect(t).
+		Body(``).
+		Status(http.StatusAccepted).
+		End()
+
 	// OK (text/html)
 	apitest.New().
 		Handler(route.Init()).
