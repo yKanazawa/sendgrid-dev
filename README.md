@@ -6,7 +6,7 @@ SendGrid Dev is SengGrid mock API for test your sendgrid emails during developme
 
 ## Requirements
 
-- Go 1.16+
+- Go 1.21+
 
 ## Debug
 
