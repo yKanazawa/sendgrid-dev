@@ -19,6 +19,7 @@ import (
 
 type PostRequest struct {
 	Personalizations []struct {
+		Subject string `json:"subject"`
 		To []struct {
 			Email string `json:"email"`
 			Name  string `json:"name"`
@@ -31,6 +32,7 @@ type PostRequest struct {
 			Email string `json:"email"`
 			Name  string `json:"name"`
 		} `json:"bcc"`
+		DynamicTemplateData interface{} `json:"dynamic_template_data"`
 		Substitutions map[string]string `json:"substitutions"`
 	} `json:"personalizations" validate:"required"`
 	From struct {
@@ -41,7 +43,7 @@ type PostRequest struct {
 		Email string `json:"email"`
 		Name  string `json:"name"`
 	} `json:"reply_to"`
-	Subject string `json:"subject" validate:"required"`
+	Subject string `json:"subject"`
 	Content []struct {
 		Type  string `json:"type"`
 		Value string `json:"value"`
@@ -53,6 +55,7 @@ type PostRequest struct {
 		Disposition string `json:"disposition"`
 		ContentId   string `json:"content_id"`
 	} `json:"attachments"`
+	TemplateId string `json:"template_id"`
 }
 
 type ErrorResponse struct {
@@ -87,20 +90,6 @@ func (postRequest *PostRequest) Validate() (int, ErrorResponse) {
 							"The from object must be provided for every email send. It is an object that requires the email parameter, but may also contain a name parameter.  e.g. {\"email\" : \"example@example.com\"}  or {\"email\" : \"example@example.com\", \"name\" : \"Example Recipient\"}.",
 							"from.email",
 							"http://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html#message.from",
-						)
-				case "Subject":
-					return http.StatusBadRequest,
-						GetErrorResponse(
-							"The subject is required. You can get around this requirement if you use a template with a subject defined or if every personalization has a subject defined.",
-							"subject",
-							"http://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html#message.subject",
-						)
-				case "Content":
-					return http.StatusBadRequest,
-						GetErrorResponse(
-							"Unless a valid template_id is provided, the content parameter is required. There must be at least one defined content block. We typically suggest both text/plain and text/html blocks are included, but only one block is required.",
-							"content",
-							"http://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html#message.content",
 						)
 				}
 			}
@@ -159,6 +148,11 @@ func sendMailWithSMTP(postRequest PostRequest) (int, ErrorResponse) {
 			} else {
 				e.Text = []byte(replacer.Replace((content.Value)))
 			}
+		}
+
+		if personalizations.DynamicTemplateData != nil {
+			b, _ := json.Marshal(personalizations.DynamicTemplateData)
+			e.Text = b
 		}
 
 		i := 0
