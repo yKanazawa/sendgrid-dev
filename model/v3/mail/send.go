@@ -20,7 +20,7 @@ import (
 type PostRequest struct {
 	Personalizations []struct {
 		Subject string `json:"subject"`
-		To      []struct {
+		To []struct {
 			Email string `json:"email"`
 			Name  string `json:"name"`
 		} `json:"to"`
