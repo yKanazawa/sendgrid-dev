@@ -45,7 +45,7 @@ http://localhost:1080/
 
 Run SendGrid Mock API
 ```
-export SENDGRID_DEV_API_SERVER :3030
+export SENDGRID_DEV_API_SERVER=:3030
 export SENDGRID_DEV_API_KEY=SG.xxxxx
 export SENDGRID_DEV_SMTP_SERVER=smtp.mailtrap.io:25
 export SENDGRID_DEV_SMTP_USERNAME=mailtrap_username
