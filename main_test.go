@@ -71,9 +71,9 @@ func TestSend(t *testing.T) {
 			"from": {
 				"email": "from@example.com"
 			},
-			"subject": "Subject", 
+			"subject": "Subject",
 			"content": [{
-				"type": "text/plain", 
+				"type": "text/plain",
 				"value": "Content"
 			}]
 		}`).
@@ -92,10 +92,10 @@ func TestSend(t *testing.T) {
 				"to": [{
 					"email": "to@example.com"
 				}]
-			}], 
-			"subject": "Subject", 
+			}],
+			"subject": "Subject",
 			"content": [{
-				"type": "text/plain", 
+				"type": "text/plain",
 				"value": "Content"
 			}]
 		}`).
@@ -117,9 +117,9 @@ func TestSend(t *testing.T) {
 			}],
 			"from": {
 				"email": "from@example.com"
-			}, 
+			},
 			"content": [{
-				"type": "text/plain", 
+				"type": "text/plain",
 				"value": "Content"
 			}]
 		}`).
@@ -138,10 +138,10 @@ func TestSend(t *testing.T) {
 				"to": [{
 					"email": "to@example.com"
 				}]
-			}], 
+			}],
 			"from": {
 				"email": "from@example.com"
-			}, 
+			},
 			"subject": "Subject"
 		}`).
 		Expect(t).
@@ -159,13 +159,38 @@ func TestSend(t *testing.T) {
 				"to": [{
 					"email": "to@example.com"
 				}]
-			}], 
+			}],
 			"from": {
 				"email": "from@example.com"
-			}, 
-			"subject": "Subject", 
+			},
+			"subject": "Subject",
 			"content": [{
-				"type": "text/plain", 
+				"type": "text/plain",
+				"value": "Content"
+			}]
+		}`).
+		Expect(t).
+		Body(``).
+		Status(http.StatusAccepted).
+		End()
+
+	// OK (subject in personalizations)
+	apitest.New().
+		Handler(route.Init()).
+		Post("/v3/mail/send").
+		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_API_KEY")}).
+		JSON(`{
+			"personalizations": [{
+				"to": [{
+					"email": "to@example.com"
+				}],
+				"subject": "Subject"
+			}],
+			"from": {
+				"email": "from@example.com"
+			},
+			"content": [{
+				"type": "text/plain",
 				"value": "Content"
 			}]
 		}`).
@@ -182,38 +207,38 @@ func TestSend(t *testing.T) {
 		JSON(`{
 			"personalizations": [{
 				"to": [{
-					"email": "to1@example.com", 
+					"email": "to1@example.com",
 					"name": "ToName1"
 				}, {
-					"email": "to2@example.com", 
+					"email": "to2@example.com",
 					"name": "ToName2"
-				}], 
+				}],
 				"cc": [{
-					"email": "cc1@example.com", 
+					"email": "cc1@example.com",
 					"name": "CcName1"
 				}, {
-					"email": "cc2@example.com", 
+					"email": "cc2@example.com",
 					"name": "CcName2"
 				}],
 				"bcc": [{
-					"email": "bcc1@example.com", 
+					"email": "bcc1@example.com",
 					"name": "BccName1"
 				}, {
-					"email": "bcc2@example.com", 
+					"email": "bcc2@example.com",
 					"name": "BccName2"
 				}]
-			}], 
+			}],
 			"from": {
-				"email": "from@example.com", 
+				"email": "from@example.com",
 				"name": "FromName"
-			}, 
+			},
 			"reply_to": {
-				"email": "reply_to@example.com", 
+				"email": "reply_to@example.com",
 				"name": "ReplyToName"
-			}, 
-			"subject": "Subject", 
+			},
+			"subject": "Subject",
 			"content": [{
-				"type": "text/plain", 
+				"type": "text/plain",
 				"value": "Content"
 			}]
 		}`).
@@ -231,30 +256,30 @@ func TestSend(t *testing.T) {
 			"personalizations": [
 				{
 					"to": [{
-						"email": "to1@example.com", 
+						"email": "to1@example.com",
 						"name": "ToName1"
 					}, {
-						"email": "to2@example.com", 
+						"email": "to2@example.com",
 						"name": "ToName2"
 					}]
 				},
 				{
 					"to": [{
-						"email": "to3@example.com", 
+						"email": "to3@example.com",
 						"name": "ToName3"
 					}, {
-						"email": "to4@example.com", 
+						"email": "to4@example.com",
 						"name": "ToName4"
 					}]
 				}
-			], 
+			],
 			"from": {
-				"email": "from@example.com", 
+				"email": "from@example.com",
 				"name": "FromName"
-			}, 
-			"subject": "Subject", 
+			},
+			"subject": "Subject",
 			"content": [{
-				"type": "text/plain", 
+				"type": "text/plain",
 				"value": "Content"
 			}]
 		}`).
@@ -314,13 +339,13 @@ func TestSend(t *testing.T) {
 				"to": [{
 					"email": "to@example.com"
 				}]
-			}], 
+			}],
 			"from": {
 				"email": "from@example.com"
-			}, 
-			"subject": "Subject", 
+			},
+			"subject": "Subject",
 			"content": [{
-				"type": "text/html", 
+				"type": "text/html",
 				"value": "<h1>Content</h1>"
 			}]
 		}`).
@@ -339,16 +364,16 @@ func TestSend(t *testing.T) {
 				"to": [{
 					"email": "to@example.com"
 				}]
-			}], 
+			}],
 			"from": {
 				"email": "from@example.com"
-			}, 
-			"subject": "Subject", 
+			},
+			"subject": "Subject",
 			"content": [{
-				"type": "text/plain", 
+				"type": "text/plain",
 				"value": "Content1"
 			}, {
-				"type": "text/html", 
+				"type": "text/html",
 				"value": "<h1>Content2</h1>"
 			}]
 		}`).
@@ -367,18 +392,18 @@ func TestSend(t *testing.T) {
 				"to": [{
 					"email": "to@example.com"
 				}]
-			}], 
+			}],
 			"from": {
 				"email": "from@example.com"
-			}, 
-			"subject": "Subject", 
+			},
+			"subject": "Subject",
 			"content": [{
-				"type": "text/plain", 
+				"type": "text/plain",
 				"value": "Content"
 			}],
 			"attachments": [{
-				"content": "dGVzdA==", 
-				"type": "text/plain", 
+				"content": "dGVzdA==",
+				"type": "text/plain",
 				"filename": "attachment.txt"
 			}]
 		}`).
@@ -397,22 +422,22 @@ func TestSend(t *testing.T) {
 				"to": [{
 					"email": "to@example.com"
 				}]
-			}], 
+			}],
 			"from": {
 				"email": "from@example.com"
-			}, 
-			"subject": "Subject", 
+			},
+			"subject": "Subject",
 			"content": [{
-				"type": "text/plain", 
+				"type": "text/plain",
 				"value": "Content"
 			}],
 			"attachments": [{
-				"content": "dGVzdA==", 
-				"type": "text/plain", 
+				"content": "dGVzdA==",
+				"type": "text/plain",
 				"filename": "attachment1.txt"
 			}, {
-				"content": "dGVzdA==", 
-				"type": "text/plain", 
+				"content": "dGVzdA==",
+				"type": "text/plain",
 				"filename": "attachment2.txt"
 			}]
 		}`).
@@ -431,18 +456,18 @@ func TestSend(t *testing.T) {
 				"to": [{
 					"email": "to@example.com"
 				}]
-			}], 
+			}],
 			"from": {
 				"email": "from@example.com"
-			}, 
-			"subject": "Subject", 
+			},
+			"subject": "Subject",
 			"content": [{
-				"type": "text/plain", 
+				"type": "text/plain",
 				"value": "Content"
 			}],
 			"attachments": [{
-				"content": "NOT BASE64", 
-				"type": "text/plain", 
+				"content": "NOT BASE64",
+				"type": "text/plain",
 				"filename": "attachment.txt"
 			}]
 		}`).
@@ -461,22 +486,22 @@ func TestSend(t *testing.T) {
 				"to": [{
 					"email": "to@example.com"
 				}]
-			}], 
+			}],
 			"from": {
 				"email": "from@example.com"
-			}, 
-			"subject": "Subject", 
+			},
+			"subject": "Subject",
 			"content": [{
-				"type": "text/plain", 
+				"type": "text/plain",
 				"value": "Content"
 			}],
 			"attachments": [{
-				"content": "dGVzdA==", 
-				"type": "text/plain", 
+				"content": "dGVzdA==",
+				"type": "text/plain",
 				"filename": "attachment1.txt"
 			}, {
-				"content": "NOT_BASE64", 
-				"type": "text/plain", 
+				"content": "NOT_BASE64",
+				"type": "text/plain",
 				"filename": "attachment2.txt"
 			}]
 		}`).
@@ -496,13 +521,13 @@ func TestSend(t *testing.T) {
 				"to": [{
 					"email": "to@example.com"
 				}]
-			}], 
+			}],
 			"from": {
 				"email": "from@example.com"
-			}, 
-			"subject": "Subject", 
+			},
+			"subject": "Subject",
 			"content": [{
-				"type": "text/plain", 
+				"type": "text/plain",
 				"value": "Content"
 			}]
 		}`).
