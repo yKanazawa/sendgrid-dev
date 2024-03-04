@@ -32,6 +32,7 @@ type PostRequest struct {
 			Name  string `json:"name"`
 		} `json:"bcc"`
 		Substitutions map[string]string `json:"substitutions"`
+		Subject string `json:"subject"`
 	} `json:"personalizations" validate:"required"`
 	From struct {
 		Email string `json:"email" validate:"required"`
@@ -41,7 +42,7 @@ type PostRequest struct {
 		Email string `json:"email"`
 		Name  string `json:"name"`
 	} `json:"reply_to"`
-	Subject string `json:"subject" validate:"required"`
+	Subject string `json:"subject"`
 	Content []struct {
 		Type  string `json:"type"`
 		Value string `json:"value"`
@@ -87,13 +88,6 @@ func (postRequest *PostRequest) Validate() (int, ErrorResponse) {
 							"The from object must be provided for every email send. It is an object that requires the email parameter, but may also contain a name parameter.  e.g. {\"email\" : \"example@example.com\"}  or {\"email\" : \"example@example.com\", \"name\" : \"Example Recipient\"}.",
 							"from.email",
 							"http://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html#message.from",
-						)
-				case "Subject":
-					return http.StatusBadRequest,
-						GetErrorResponse(
-							"The subject is required. You can get around this requirement if you use a template with a subject defined or if every personalization has a subject defined.",
-							"subject",
-							"http://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html#message.subject",
 						)
 				case "Content":
 					return http.StatusBadRequest,
@@ -151,7 +145,18 @@ func sendMailWithSMTP(postRequest PostRequest) (int, ErrorResponse) {
 		}
 		replacer := strings.NewReplacer(replacements...)
 
-		e.Subject = replacer.Replace(postRequest.Subject)
+		if personalizations.Subject != "" {
+			e.Subject = replacer.Replace(personalizations.Subject)
+		} else if postRequest.Subject != "" {
+			e.Subject = replacer.Replace(postRequest.Subject)
+		} else {
+			return http.StatusBadRequest,
+			GetErrorResponse(
+				"The subject is required. You can get around this requirement if you use a template with a subject defined or if every personalization has a subject defined.",
+				"subject",
+				"http://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html#message.subject",
+			)
+		}
 
 		for _, content := range postRequest.Content {
 			if content.Type == "text/html" {
