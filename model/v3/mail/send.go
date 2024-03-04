@@ -145,10 +145,10 @@ func sendMailWithSMTP(postRequest PostRequest) (int, ErrorResponse) {
 		}
 		replacer := strings.NewReplacer(replacements...)
 
-		if postRequest.Subject != "" {
+		if personalizations.Subject != "" {
+			e.Subject = replacer.Replace(personalizations.Subject)
+		} else if postRequest.Subject != "" {
 			e.Subject = replacer.Replace(postRequest.Subject)
-		} else if personalizations.Subject != "" {
-			e.Subject = personalizations.Subject
 		} else {
 			return http.StatusBadRequest,
 			GetErrorResponse(

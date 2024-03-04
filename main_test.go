@@ -199,6 +199,32 @@ func TestSend(t *testing.T) {
 		Status(http.StatusAccepted).
 		End()
 
+	// OK (duplicate subject (personalization priority))
+	apitest.New().
+		Handler(route.Init()).
+		Post("/v3/mail/send").
+		Headers(map[string]string{"Authorization": "Bearer " + os.Getenv("SENDGRID_DEV_API_KEY")}).
+		JSON(`{
+			"personalizations": [{
+				"to": [{
+					"email": "to@example.com"
+				}],
+				"subject": "Subject"
+			}],
+			"from": {
+				"email": "from@example.com"
+			},
+			"subject": "Subject",
+			"content": [{
+				"type": "text/plain",
+				"value": "Content"
+			}]
+		}`).
+		Expect(t).
+		Body(``).
+		Status(http.StatusAccepted).
+		End()
+
 	// OK (multiple to, cc, bcc and reply-to with name)
 	apitest.New().
 		Handler(route.Init()).
