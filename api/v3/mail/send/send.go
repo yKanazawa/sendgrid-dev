@@ -34,14 +34,14 @@ func PostSend() echo.HandlerFunc {
 			return c.JSON(http.StatusUnsupportedMediaType, model.GetErrorResponse("Content-Type should be application/json", nil, nil))
 		}
 
-		var postRequest model.PostRequest;
+		var postRequest model.PostRequest
 		if err := postRequest.SetPostRequest(c.Request().Body); err != nil {
 			return c.JSON(http.StatusBadRequest, model.GetErrorResponse("Bad Request", nil, nil))
 		}
 
-		statusCode, errorResponse := postRequest.Validate();
-		if (statusCode != http.StatusAccepted) {
-			return c.JSON(statusCode, errorResponse);
+		statusCode, errorResponse := postRequest.Validate()
+		if statusCode != http.StatusAccepted {
+			return c.JSON(statusCode, errorResponse)
 		}
 
 		return c.String(http.StatusAccepted, "")

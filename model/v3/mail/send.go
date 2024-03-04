@@ -32,7 +32,7 @@ type PostRequest struct {
 			Name  string `json:"name"`
 		} `json:"bcc"`
 		Substitutions map[string]string `json:"substitutions"`
-		Subject string `json:"subject"`
+		Subject       string            `json:"subject"`
 	} `json:"personalizations" validate:"required"`
 	From struct {
 		Email string `json:"email" validate:"required"`
@@ -151,11 +151,11 @@ func sendMailWithSMTP(postRequest PostRequest) (int, ErrorResponse) {
 			e.Subject = replacer.Replace(postRequest.Subject)
 		} else {
 			return http.StatusBadRequest,
-			GetErrorResponse(
-				"The subject is required. You can get around this requirement if you use a template with a subject defined or if every personalization has a subject defined.",
-				"subject",
-				"http://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html#message.subject",
-			)
+				GetErrorResponse(
+					"The subject is required. You can get around this requirement if you use a template with a subject defined or if every personalization has a subject defined.",
+					"subject",
+					"http://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html#message.subject",
+				)
 		}
 
 		for _, content := range postRequest.Content {
