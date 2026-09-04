@@ -26,16 +26,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Lowercase the owner: ghcr.io rejects mixed-case names.
-      - name: Compute image name
-        id: image
-        run: echo "name=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/sendgrid-dev" >> "$GITHUB_OUTPUT"
-
       - name: Extract metadata (tags, labels)
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ steps.image.outputs.name }}
+          images: ghcr.io/ykanazawa/sendgrid-dev
           tags: |
             type=ref,event=branch
             type=ref,event=tag

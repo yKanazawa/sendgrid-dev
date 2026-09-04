@@ -4,30 +4,11 @@ SendGrid Dev is SengGrid mock API for test your sendgrid emails during developme
 
 [SengGrid MailDev](https://hub.docker.com/r/ykanazawa/sendgrid-maildev) is Docker container with SendGrid Mock API + [MailDev](https://maildev.github.io/maildev/).
 
-## Docker (GitHub Container Registry)
+## Docker
 
-Prebuilt multi-arch images (`linux/amd64`, `linux/arm64`) are published from
-`main` on every push. Point the SendGrid SDK at this container's
-`/v3/mail/send` endpoint; it forwards to whatever SMTP host you configure
-(MailDev, Mailpit, MailTrap, real SMTP, …).
-
-```bash
-docker pull ghcr.io/paxa/sendgrid-dev:latest
-
-# Example: forward to a local Mailpit on the same docker network.
-docker run --rm -p 3030:3030 \
-  -e SENDGRID_DEV_API_KEY=SG.local-dev-key \
-  -e SENDGRID_DEV_SMTP_SERVER=mailpit:1025 \
-  ghcr.io/paxa/sendgrid-dev:latest
-```
-
-Available tags: `latest`, `main`, `sha-<short>`, and `v*` for release tags.
-
-Build locally:
-
-```bash
-docker build -t sendgrid-dev:local .
-```
+Multi-arch images (`linux/amd64`, `linux/arm64`) published to
+`ghcr.io/ykanazawa/sendgrid-dev` (`:latest`, `:main`, `:sha-<short>`, `:v*`).
+Build locally with `docker build -t sendgrid-dev .`.
 
 ## Requirements
 
