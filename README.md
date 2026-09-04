@@ -4,6 +4,12 @@ SendGrid Dev is SengGrid mock API for test your sendgrid emails during developme
 
 [SengGrid MailDev](https://hub.docker.com/r/ykanazawa/sendgrid-maildev) is Docker container with SendGrid Mock API + [MailDev](https://maildev.github.io/maildev/).
 
+## Docker
+
+Multi-arch images (`linux/amd64`, `linux/arm64`) published to
+`ghcr.io/ykanazawa/sendgrid-dev` (`:latest`, `:main`, `:sha-<short>`, `:v*`).
+Build locally with `docker build -t sendgrid-dev .`.
+
 ## Requirements
 
 - Go 1.26+
